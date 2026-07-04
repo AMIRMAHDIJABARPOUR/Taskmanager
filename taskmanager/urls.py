@@ -9,10 +9,14 @@ from .views import (
     TaskAdminDetailsViewSet,
     TaskWorkerFinishedViewSet,
     TaskWorkerPendingViewSet,
+    AdminChangeRoleViewSet,
 )
 
 router = DefaultRouter()
 router.register(r"tasks-admin", TaskAdminFullViewSet, basename="tasks-admin")
+router.register(
+    r"change-user-roles", AdminChangeRoleViewSet, basename="change-user-roles"
+)
 
 urlpatterns = [
     # Reader Urls

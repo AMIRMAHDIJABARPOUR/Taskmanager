@@ -3,17 +3,19 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.filters import OrderingFilter, SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from .permissions import IsAdmin, IsWorker
-from django.db.models import Q
+from django.contrib.auth import get_user_model
 from .serializers import (
     TasksSerializer,
     TaskReaderSerializer,
     TaskWorkerSerializer,
     TaskAdminFullSerializer,
     TaskAdminSerializer,
+    AdminChangeRoleSerializer,
 )
 from .filters import BaseTasksFilter, TaskWorkerFinishedFilter, TaskWorkerPendingFilter
 from .models import Tasks
 
+User = get_user_model()
 # =====================
 # Reader Views
 # =====================
@@ -46,7 +48,7 @@ class TaskWorkerListView(
     generics.GenericAPIView,
     mixins.ListModelMixin,
 ):
-    permission_classes = [IsWorker]
+    permission_classes = [IsAuthenticated, IsWorker]
     serializer_class = TaskWorkerSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = BaseTasksFilter
@@ -83,7 +85,7 @@ class TaskWorkerDetailViewSet(
 
 
 class TaskWorkerFinishedViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
-    permission_classes = [IsWorker]
+    permission_classes = [IsAuthenticated, IsWorker]
     serializer_class = TaskReaderSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = TaskWorkerFinishedFilter
@@ -96,7 +98,7 @@ class TaskWorkerFinishedViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
 
 class TaskWorkerPendingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
-    permission_classes = [IsWorker]
+    permission_classes = [IsAuthenticated, IsWorker]
     serializer_class = TaskReaderSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = TaskWorkerPendingFilter
@@ -114,7 +116,7 @@ class TaskWorkerPendingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 class TaskAdminFullViewSet(viewsets.ModelViewSet):
     queryset = Tasks.objects.all()
     serializer_class = TaskAdminFullSerializer
-    permission_classes = [IsAdmin]
+    permission_classes = [IsAuthenticated, IsAdmin]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
 
     filterset_class = BaseTasksFilter
@@ -129,7 +131,7 @@ class TaskAdminFullViewSet(viewsets.ModelViewSet):
 class TaskAdminListViewSet(generics.GenericAPIView, mixins.ListModelMixin):
     queryset = Tasks.objects.filter(status="pending")
     serializer_class = TaskAdminSerializer
-    permission_classes = [IsAdmin]
+    permission_classes = [IsAuthenticated, IsAdmin]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
 
     filterset_class = BaseTasksFilter
@@ -150,7 +152,14 @@ class TaskAdminDetailsViewSet(
     mixins.DestroyModelMixin,
     mixins.UpdateModelMixin,
 ):
-    permission_classes = [IsAdmin]
+    permission_classes = [IsAuthenticated, IsAdmin]
     queryset = queryset = Tasks.objects.filter(status="pending")
     lookup_field = "pk"
     serializer_class = TaskAdminSerializer
+
+
+class AdminChangeRoleViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = AdminChangeRoleSerializer
+    permission_classes = [IsAuthenticated, IsAdmin]
+    http_method_names = ["get", "patch", "head", "options"]

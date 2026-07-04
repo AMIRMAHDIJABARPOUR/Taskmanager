@@ -2,28 +2,29 @@ import re
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
 
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    identifier = serializers.CharField(write_only=True)
+class CustomTokenObtainPairSerializer(serializers.Serializer):
+    username_or_email = serializers.CharField(write_only=True)
     password = serializers.CharField(write_only=True, trim_whitespace=False)
 
     @staticmethod
-    def is_valid_email(email_str):
+    def is_valid_email(value):
         email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
-        return re.match(email_regex, email_str) is not None
+        return re.match(email_regex, value) is not None
 
     def validate(self, attrs):
-        identifier = attrs.get("identifier")
+        username_or_email = attrs.get("username_or_email")
         password = attrs.get("password")
 
-        if self.is_valid_email(identifier):
-            user = User.objects.filter(email__iexact=identifier).first()
+        if self.is_valid_email(username_or_email):
+            user = User.objects.filter(email__iexact=username_or_email).first()
         else:
-            user = User.objects.filter(username__iexact=identifier).first()
+            user = User.objects.filter(username__iexact=username_or_email).first()
 
         if user is None or not user.check_password(password):
             raise AuthenticationFailed(
@@ -32,10 +33,12 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             )
 
         if not user.is_active:
-            raise AuthenticationFailed("User account is disabled", code="user_inactive")
+            raise AuthenticationFailed(
+                "User account is disabled",
+                code="user_inactive",
+            )
 
-        data = super().get_token(user)
-        refresh = self.get_token(user)
+        refresh = RefreshToken.for_user(user)
         access = refresh.access_token
 
         refresh["username"] = user.get_username()
@@ -50,14 +53,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             "refresh": str(refresh),
             "access": str(access),
         }
-
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        token["username"] = user.get_username()
-        token["email"] = getattr(user, "email", "")
-        token["role"] = getattr(user, "role", "")
-        return token
 
 
 class UserReadOnlySerializer(serializers.ModelSerializer):

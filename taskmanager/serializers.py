@@ -268,6 +268,23 @@ class TaskAdminSerializer(serializers.ModelSerializer):
         )
 
 
+class AdminChangeRoleSerializer(serializers.ModelSerializer):
+    user_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ["id", "user_url", "username", "email", "role"]
+        read_only_fields = ["id", "user_url", "username", "email"]
+
+    def get_user_url(self, obj):
+        request = self.context.get("request")
+        return reverse(
+            "change-user-roles-detail",
+            kwargs={"pk": obj.pk},
+            request=request,
+        )
+
+
 # =====================
 # Full serializer
 # =====================

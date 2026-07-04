@@ -35,6 +35,7 @@ THIRD_PARTY_APPS = [
     "rest_framework.authtoken",
     "djoser",
     "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
 ]
 LOCAL_APPS = ["accounts.apps.AccountsConfig", "taskmanager.apps.TaskmanagerConfig"]
 
@@ -140,6 +141,7 @@ REST_FRAMEWORK = {
 # Djoser
 # =====================
 DJOSER = {
+    "PASSWORD_RESET_CONFIRM_URL": "password-reset/{uid}/{token}",
     "users-list": [
         # "rest_framework.permissions.IsAdminUser",
         "accounts.permissions.UserRoleAdminOrSuperuser",
