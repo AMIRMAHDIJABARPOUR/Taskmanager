@@ -1,19 +1,28 @@
+# =====================
+# Import
+# =====================
+#  restframework
 from rest_framework import viewsets, generics, mixins
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.filters import OrderingFilter, SearchFilter
+
+# thirdpart import
 from django_filters.rest_framework import DjangoFilterBackend
-from .permissions import IsAdmin, IsWorker
 from django.contrib.auth import get_user_model
+
+# local import
+from .permissions import IsAdmin, IsWorker
 from .serializers import (
-    TasksSerializer,
     TaskReaderSerializer,
     TaskWorkerSerializer,
     TaskAdminFullSerializer,
     TaskAdminSerializer,
     AdminChangeRoleSerializer,
 )
-from .filters import BaseTasksFilter, TaskWorkerFinishedFilter, TaskWorkerPendingFilter
+from .filters import BaseTasksFilter, TaskFilterWithoutStatus
 from .models import Tasks
+from .pagination import TaskPagination
 
 User = get_user_model()
 # =====================
@@ -24,6 +33,7 @@ User = get_user_model()
 class TaskReaderView(
     generics.GenericAPIView, mixins.ListModelMixin, mixins.RetrieveModelMixin
 ):
+    pagination_class = TaskPagination
     queryset = Tasks.objects.all()
     serializer_class = TaskReaderSerializer
     permission_classes = [IsAuthenticated]
@@ -55,6 +65,7 @@ class TaskWorkerListView(
     search_fields = ["title", "task_functor__username", "owner__username"]
     ordering_fields = ["created_date", "dead_line"]
     ordering = "-dead_line"
+    pagination_class = TaskPagination
 
     def get_queryset(self):
         return Tasks.objects.filter(task_functor=self.request.user).exclude(
@@ -69,13 +80,16 @@ class TaskWorkerListView(
 class TaskWorkerDetailViewSet(
     viewsets.GenericViewSet,
     mixins.RetrieveModelMixin,
-    mixins.DestroyModelMixin,
     mixins.UpdateModelMixin,
 ):
+    parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsWorker]
     queryset = Tasks.objects.all()
     serializer_class = TaskWorkerSerializer
     lookup_field = "pk"
+
+    def get_queryset(self):
+        return Tasks.objects.filter(task_functor=self.request.user)
 
     def perform_update(self, serializer):
         instance = serializer.save()
@@ -85,10 +99,12 @@ class TaskWorkerDetailViewSet(
 
 
 class TaskWorkerFinishedViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+
     permission_classes = [IsAuthenticated, IsWorker]
+    pagination_class = TaskPagination
     serializer_class = TaskReaderSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_class = TaskWorkerFinishedFilter
+    filterset_class = TaskFilterWithoutStatus
     search_fields = ["title", "task_functor__username", "owner__username"]
     ordering_fields = ["created_date", "dead_line"]
     ordering = "-dead_line"
@@ -98,10 +114,12 @@ class TaskWorkerFinishedViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
 
 
 class TaskWorkerPendingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
+
     permission_classes = [IsAuthenticated, IsWorker]
+    pagination_class = TaskPagination
     serializer_class = TaskReaderSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_class = TaskWorkerPendingFilter
+    filterset_class = TaskFilterWithoutStatus
     search_fields = ["title", "task_functor__username", "owner__username"]
     ordering_fields = ["created_date", "dead_line"]
     ordering = "-dead_line"
@@ -118,7 +136,7 @@ class TaskAdminFullViewSet(viewsets.ModelViewSet):
     serializer_class = TaskAdminFullSerializer
     permission_classes = [IsAuthenticated, IsAdmin]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-
+    pagination_class = TaskPagination
     filterset_class = BaseTasksFilter
     search_fields = ["title", "task_functor__username", "owner__username"]
     ordering_fields = ["created_date", "dead_line"]
@@ -133,8 +151,9 @@ class TaskAdminListViewSet(generics.GenericAPIView, mixins.ListModelMixin):
     serializer_class = TaskAdminSerializer
     permission_classes = [IsAuthenticated, IsAdmin]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-
     filterset_class = BaseTasksFilter
+    pagination_class = TaskPagination
+
     search_fields = ["title", "task_functor__username", "owner__username"]
     ordering_fields = ["created_date", "dead_line"]
     ordering = "-dead_line"
@@ -153,7 +172,7 @@ class TaskAdminDetailsViewSet(
     mixins.UpdateModelMixin,
 ):
     permission_classes = [IsAuthenticated, IsAdmin]
-    queryset = queryset = Tasks.objects.filter(status="pending")
+    queryset = Tasks.objects.filter(status="pending")
     lookup_field = "pk"
     serializer_class = TaskAdminSerializer
 
@@ -161,5 +180,8 @@ class TaskAdminDetailsViewSet(
 class AdminChangeRoleViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = AdminChangeRoleSerializer
+    pagination_class = TaskPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+
     permission_classes = [IsAuthenticated, IsAdmin]
     http_method_names = ["get", "patch", "head", "options"]

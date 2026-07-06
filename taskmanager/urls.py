@@ -31,21 +31,20 @@ urlpatterns = [
         TaskWorkerDetailViewSet.as_view(
             {
                 "get": "retrieve",
-                "put": "update",
                 "patch": "partial_update",
             }
         ),
         name="task-worker-details",
     ),
     path(
-        "tasks-worker/finished/",
-        TaskWorkerFinishedViewSet.as_view({"get": "list"}),
-        name="task-worker-finished",
-    ),
-    path(
         "tasks-worker/pending/",
         TaskWorkerPendingViewSet.as_view({"get": "list"}),
         name="task-worker-pending",
+    ),
+    path(
+        "tasks-worker/finished/",
+        TaskWorkerFinishedViewSet.as_view({"get": "list"}),
+        name="task-worker-finished",
     ),
     # Admin Urls
     path("admin-full-page/", include(router.urls)),
