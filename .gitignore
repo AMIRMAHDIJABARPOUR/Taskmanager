@@ -6,3 +6,4 @@ db.sqlite3
 practice.py
 __pycache__
 .pytest_cache
+media
