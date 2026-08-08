@@ -1,4 +1,5 @@
 from .base import *
+import dj_database_url
 
 # =====================
 # Core
@@ -14,14 +15,11 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 # Database
 # =====================
 DATABASES = {
-    "default": {
-        "ENGINE": env("ENGINE"),
-        "NAME": env("NAME"),
-        "USER": env("USER"),
-        "PASSWORD": env("PASSWORD"),
-        "HOST": env("HOST"),
-        "PORT": env("PORT"),
-    }
+    "default": dj_database_url.parse(
+        env("DATABASE_URL"),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 # =====================
 # Security
