@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import RedirectView
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularSwaggerView,
@@ -12,6 +13,11 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("taskmanager/", include("taskmanager.urls")),
     path("accounts/", include("accounts.urls")),
+    path(
+        "",
+        RedirectView.as_view(pattern_name="swagger-ui", permanent=False),
+        name="home",
+    ),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/docs/swagger/",

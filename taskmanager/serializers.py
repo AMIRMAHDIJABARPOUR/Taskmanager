@@ -39,7 +39,7 @@ class TaskReaderSerializer(serializers.ModelSerializer):
             "status",
         ]
 
-    def get_task_functor_url(self, obj):
+    def get_task_functor_url(self, obj) -> str:
         request = self.context.get("request")
         return reverse(
             "accounts-user-details",
@@ -47,17 +47,17 @@ class TaskReaderSerializer(serializers.ModelSerializer):
             request=request,
         )
 
-    def get_owner_url(self, obj):
+    def get_owner_url(self, obj) -> str:
         request = self.context.get("request")
         return reverse(
             "accounts-user-details", kwargs={"pk": obj.owner.pk}, request=request
         )
 
-    def get_task_url(self, obj):
+    def get_task_url(self, obj) -> str:
         request = self.context.get("request")
         return reverse("task-reader-deatails", kwargs={"pk": obj.pk}, request=request)
 
-    def to_representation(self, instance):
+    def to_representation(self, instance) -> str:
         representation = super().to_representation(instance)
         view = self.context.get("view")
         action = getattr(view, "action", None)
@@ -65,7 +65,7 @@ class TaskReaderSerializer(serializers.ModelSerializer):
             representation.pop("task_url", None)
         return representation
 
-    def get_fields(self):
+    def get_fields(self) -> str:
         fields = super().get_fields()
         view = self.context.get("view")
         if hasattr(view, "kwargs") and view.kwargs.get("pk"):
@@ -121,19 +121,19 @@ class TaskWorkerSerializer(serializers.ModelSerializer):
             "status",
         ]
 
-    def get_owner_url(self, obj):
+    def get_owner_url(self, obj) -> str:
         request = self.context.get("request")
         return reverse(
             "accounts-user-details", kwargs={"pk": obj.owner.pk}, request=request
         )
 
-    def get_task_functor_url(self, obj):
+    def get_task_functor_url(self, obj) -> str:
         request = self.context.get("request")
         return reverse(
             "accounts-user-details", kwargs={"pk": obj.task_functor.pk}, request=request
         )
 
-    def get_task_url(self, obj):
+    def get_task_url(self, obj) -> str:
         request = self.context.get("request")
 
         return reverse("task-worker-details", kwargs={"pk": obj.pk}, request=request)
@@ -185,19 +185,19 @@ class TaskAdminFullSerializer(serializers.ModelSerializer):
             "task_url",
         ]
 
-    def get_owner_url(self, obj):
+    def get_owner_url(self, obj) -> str:
         request = self.context.get("request")
         return reverse(
             "accounts-user-details", kwargs={"pk": obj.owner.pk}, request=request
         )
 
-    def get_task_functor_url(self, obj):
+    def get_task_functor_url(self, obj) -> str:
         request = self.context.get("request")
         return reverse(
             "accounts-user-details", kwargs={"pk": obj.task_functor.pk}, request=request
         )
 
-    def get_task_url(self, obj):
+    def get_task_url(self, obj) -> str:
         request = self.context.get("request")
 
         return reverse("tasks-admin-detail", kwargs={"pk": obj.pk}, request=request)
@@ -248,19 +248,19 @@ class TaskAdminSerializer(serializers.ModelSerializer):
             "task_url",
         ]
 
-    def get_owner_url(self, obj):
+    def get_owner_url(self, obj) -> str:
         request = self.context.get("request")
         return reverse(
             "accounts-user-details", kwargs={"pk": obj.owner.pk}, request=request
         )
 
-    def get_task_functor_url(self, obj):
+    def get_task_functor_url(self, obj) -> str:
         request = self.context.get("request")
         return reverse(
             "accounts-user-details", kwargs={"pk": obj.task_functor.pk}, request=request
         )
 
-    def get_task_url(self, obj):
+    def get_task_url(self, obj) -> str:
         request = self.context.get("request")
 
         return reverse(
@@ -276,7 +276,7 @@ class AdminChangeRoleSerializer(serializers.ModelSerializer):
         fields = ["id", "user_url", "username", "email", "role"]
         read_only_fields = ["id", "user_url", "username", "email"]
 
-    def get_user_url(self, obj):
+    def get_user_url(self, obj) -> str:
         request = self.context.get("request")
         return reverse(
             "change-user-roles-detail",
@@ -323,7 +323,7 @@ class TasksSerializer(serializers.ModelSerializer):
             "task_functor_url",
         ]
 
-    def get_task_functor_url(self, obj):
+    def get_task_functor_url(self, obj) -> str:
         request = self.context.get("request")
         return reverse(
             "accounts-user-details",
@@ -331,13 +331,13 @@ class TasksSerializer(serializers.ModelSerializer):
             request=request,
         )
 
-    def get_owner_url(self, obj):
+    def get_owner_url(self, obj) -> str:
         request = self.context.get("request")
         return reverse(
             "accounts-user-details", kwargs={"pk": obj.owner.pk}, request=request
         )
 
-    def get_task_url(self, obj):
+    def get_task_url(self, obj) -> str:
         request = self.context.get("request")
         return reverse("task-reader-deatails", kwargs={"pk": obj.pk}, request=request)
 

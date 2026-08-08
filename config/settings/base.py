@@ -177,9 +177,23 @@ SIMPLE_JWT = {
 # Documents
 # =====================
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Task Manager API",
-    "DESCRIPTION": "API documentation for a role-based task management system built with Django REST Framework.",
+    "TITLE": "Task Management API",
+    "DESCRIPTION": (
+        "REST API for a role-based task management system built with "
+        "Django REST Framework. Includes JWT authentication, role-based "
+        "access control, custom permissions, filtering, and a multi-step "
+        "task workflow."
+    ),
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
+    # Swagger / Redoc static assets
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
+    # Swagger UI behavior
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "persistAuthorization": True,
+    },
 }

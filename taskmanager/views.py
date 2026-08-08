@@ -68,6 +68,9 @@ class TaskWorkerListView(
     pagination_class = TaskPagination
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Tasks.objects.none()
+
         return Tasks.objects.filter(task_functor=self.request.user).exclude(
             status__in=["finished", "pending"]
         )
@@ -110,7 +113,13 @@ class TaskWorkerFinishedViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     ordering = "-dead_line"
 
     def get_queryset(self):
-        return Tasks.objects.filter(status="finished", task_functor=self.request.user)
+        if getattr(self, "swagger_fake_view", False):
+            return Tasks.objects.none()
+
+        return Tasks.objects.filter(
+            status="finished",
+            task_functor=self.request.user,
+        )
 
 
 class TaskWorkerPendingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
@@ -125,7 +134,13 @@ class TaskWorkerPendingViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     ordering = "-dead_line"
 
     def get_queryset(self):
-        return Tasks.objects.filter(status="pending", task_functor=self.request.user)
+        if getattr(self, "swagger_fake_view", False):
+            return Tasks.objects.none()
+
+        return Tasks.objects.filter(
+            status="pending",
+            task_functor=self.request.user,
+        )
 
 
 # =====================

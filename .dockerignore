@@ -1,6 +1,12 @@
-__pycache__/
 .git/
 .venv/
+
 .env
+.env.docker
+
+__pycache__/
+*.py[cod]
 .pytest_cache/
-*.pyc
+
+staticfiles/
+media/

@@ -1,9 +1,13 @@
-.venv
+.venv/
 .env
 .env.docker
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
 db.sqlite3
+media/
 
 practice.py
-__pycache__
-.pytest_cache
-media
+staticfiles/

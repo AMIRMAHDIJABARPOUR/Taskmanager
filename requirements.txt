@@ -36,3 +36,4 @@ django-simple-captcha>=0.6,<1
 django-multi-captcha-admin>=2,<3
 django-robots>=6,<7
 social-auth-app-django>=5.9,<6
+whitenoise>=6.9,<7
